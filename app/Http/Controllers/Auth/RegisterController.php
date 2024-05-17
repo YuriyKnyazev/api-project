@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\DTO\UserData;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\RegisterService;
+use Illuminate\Http\JsonResponse;
 
 class RegisterController extends Controller
 {
@@ -14,7 +15,7 @@ class RegisterController extends Controller
     ) {
     }
 
-    public function store(RegisterRequest $request)
+    public function store(RegisterRequest $request): JsonResponse
     {
         $userData = new UserData(...$request->validated());
         return $this->service->register($userData);

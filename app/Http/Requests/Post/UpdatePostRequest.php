@@ -15,15 +15,15 @@ class UpdatePostRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|int|exists:App\Models\Post,id',
             'title' => 'required|string|max:150',
             'description' => 'required|string|max:2000',
+            'userId' => 'required|int'
         ];
     }
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'id' => $this->post,
+            'userId' => auth()->id(),
         ]);
     }
 }

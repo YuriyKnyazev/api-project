@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Common;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\BaseGetRequest;
+use App\Http\Resources\Package\PackageResource;
 use App\Services\PackageService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -17,6 +18,10 @@ class PackageController extends Controller
 
     public function index(BaseGetRequest $request): AnonymousResourceCollection
     {
-        return $this->service->getActive($request->validated());
+        return PackageResource::collection(
+            $this->service->getActive(
+                $request->validated()
+            )
+        );
     }
 }

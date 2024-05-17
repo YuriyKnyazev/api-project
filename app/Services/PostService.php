@@ -2,60 +2,99 @@
 
 namespace App\Services;
 
+use App\Enums\Post\PostStatusEnum;
 use App\Http\DTO\PostData;
 use App\Http\Resources\Post\PostResource;
+use App\Models\Post;
 use App\Models\User;
 use App\Repositories\PostRepository;
+use App\Repositories\UserRepository;
+use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\DB;
 
 class PostService
 {
     public function __construct(
-        private readonly PostRepository $repository
+        private readonly PostRepository $repository,
+        private readonly UserRepository $userRepository
     )
     {
     }
+
     public function getAll(array $params): ResourceCollection
     {
         $posts = $this->repository->getAll($params);
         return PostResource::collection($posts);
     }
-    public function create(PostData $postData): PostResource
+
+    public function create(PostData $postData): Model|Post
     {
         $post = $this->repository->create($postData);
-        return PostResource::make($post);
+        return ($post);
     }
 
-    public function show(int $id): PostResource
+    public function show(Post $post): Post
     {
-        $post = $this->repository->show($id);
-        return PostResource::make($post);
+        $post = $this->repository->show($post);
+        return ($post);
     }
 
-    public function update(PostData $postData): JsonResponse
+    public function update(PostData $postData, Post $post): JsonResponse
     {
-        $this->repository->update($postData);
+        $this->repository->update($postData, $post);
         return response()->json();
     }
 
-    public function delete(int $id): JsonResponse
+    public function delete(Post $post): JsonResponse
     {
-        $this->repository->delete($id);
+        $this->repository->delete($post);
         return response()->json();
     }
 
-    public function getActive(array $params): AnonymousResourceCollection
+    public function getActive(array $params): LengthAwarePaginator
     {
         $posts = $this->repository->getActive($params);
-        return PostResource::collection($posts);
+        return ($posts);
     }
 
-    public function getByUser(array $params, User $user): AnonymousResourceCollection
+    public function getByUser(array $params, User $user): LengthAwarePaginator
     {
         $posts = $this->repository->getByUser($params, $user);
-        return PostResource::collection($posts);
+        return ($posts);
+    }
+
+    public function activate(Post $post): JsonResponse
+    {
+        /* @var User $user */
+        $user = auth()->user();
+        if ($post->status === PostStatusEnum::ACTIVE) {
+            return response()->json(['message' => 'post already activated']);
+        }
+
+        if ($this->userRepository->hasPublications($user)) {
+            try {
+                DB::beginTransaction();
+                $this->repository->activate($post);
+                $publicationsLast = $this->userRepository->decrementPublications($user);
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        } else {
+            return response()->json(['message' => 'you dont have publications']);
+        }
+        return response()->json([
+            'status' => 'success',
+            'last publications' => $publicationsLast
+        ]);
     }
 }
 

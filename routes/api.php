@@ -7,12 +7,15 @@ use Illuminate\Support\Facades\Route;
 /** Common */
 Route::get('packages', [Api\Common\PackageController::class, 'index']);
 Route::get('posts', [Api\Common\PostController::class, 'index']);
+Route::get('authors', [Api\Common\AuthorController::class, 'index']);
 
 /** Auth */
 Route::post('register', [Auth\RegisterController::class, 'store']);
 Route::post('login', [Auth\LoginController::class, 'store']);
 
 /** User Posts */
+Route::put('user/posts/activate/{post}', [Api\User\PostController::class, 'activate'])
+    ->middleware('auth:sanctum');
 Route::apiResource('user/posts', Api\User\PostController::class)
     ->middleware('auth:sanctum');
 

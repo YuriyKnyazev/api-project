@@ -13,7 +13,7 @@ class BaseRequest extends FormRequest
     {
         return true;
     }
-    public function validationData()
+    public function validationData(): ?array
     {
         return $this->all() + $this->route()->parameters();
     }

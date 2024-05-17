@@ -47,14 +47,20 @@ class PackageRepository
 
     public function getByUser(array $params, User $user): LengthAwarePaginator
     {
-        return $user->packages()->paginate($params['limit']);
+        return $user->packages()
+            ->withPivot(['publications', 'created_at'])
+            ->paginate($params['limit']);
     }
 
     public function buy(Package $package, User $user): JsonResponse
     {
         $user->packages()->attach(
             $package->getKey(),
-            ['publications' => $package->publications]);
+            [
+                'publications' => $package->publications,
+                'created_at' => now(),
+            ]
+        );
         return response()->json(['status' => 'success', 'message' => 'Package bought successfully.']);
     }
 

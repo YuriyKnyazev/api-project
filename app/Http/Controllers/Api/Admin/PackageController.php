@@ -25,7 +25,11 @@ class PackageController extends Controller
      */
     public function index(BaseGetRequest $request): AnonymousResourceCollection
     {
-        return $this->service->getAll($request->validated());
+        return PackageResource::collection(
+            $this->service->getAll(
+                $request->validated()
+            )
+        );
     }
 
     /**
@@ -34,7 +38,9 @@ class PackageController extends Controller
     public function store(StorePackageRequest $request): PackageResource
     {
         $packageData = new PackageData(...$request->validated());
-        return $this->service->create($packageData);
+        return PackageResource::make(
+            $this->service->create($packageData)
+        );
     }
 
     public function activate(PackageIdRequest $request): JsonResponse

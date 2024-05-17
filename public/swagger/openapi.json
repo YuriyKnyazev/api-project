@@ -85,6 +85,59 @@
                 }
             }
         },
+        "/authors": {
+            "get": {
+                "tags": [
+                    "COMMON"
+                ],
+                "summary": "Get all authors",
+                "description": "Get all authors",
+                "operationId": "getAllAuthors",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Elements per page",
+                        "required": false,
+                        "explode": true,
+                        "schema": {
+                            "type": "integer",
+                            "default": 8
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page",
+                        "required": false,
+                        "explode": true,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/posts": {
             "get": {
                 "tags": [
@@ -109,6 +162,17 @@
                         "name": "page",
                         "in": "query",
                         "description": "Page",
+                        "required": false,
+                        "explode": true,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "description": "Author ID",
                         "required": false,
                         "explode": true,
                         "schema": {
@@ -445,6 +509,50 @@
                         "description": "Invalid status value"
                     }
                 }
+            }
+        },
+        "/user/posts/activate/{id}": {
+            "put": {
+                "tags": [
+                    "USER POSTS"
+                ],
+                "summary": "Activate post",
+                "description": "Activate post",
+                "operationId": "activatePost",
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post ID",
+                        "required": false,
+                        "explode": true,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreatedPost"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input"
+                    }
+                }
+
             }
         },
         "/admin/packages": {

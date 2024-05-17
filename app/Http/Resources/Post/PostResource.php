@@ -28,7 +28,9 @@ class PostResource extends JsonResource
         return array_merge([
             'id' => $this->getKey(),
             'title' => $this->title,
-            'description' => $this->description
+            'description' => $this->description,
+            'author' => $this->user->name,
+            'published_date' => $this->published_at?->format('d-m-Y H:i:s')
         ],
             $status
         );

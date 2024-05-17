@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Requests\Package\ActiveIdRequest;
+use App\Http\Resources\Package\PackageUserResource;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Common\BaseGetRequest;
@@ -22,7 +23,9 @@ class PackageController extends Controller
     {
         /* @var User $user */
         $user = auth()->user();
-        return $this->service->getByUser($request->validated(), $user);
+        return PackageUserResource::collection(
+            $this->service->getByUser($request->validated(), $user)
+        );
     }
 
     public function buy(ActiveIdRequest $request): JsonResponse

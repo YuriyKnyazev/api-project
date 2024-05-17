@@ -3,15 +3,9 @@
 namespace App\Http\Controllers\Api\Common;
 
 use App\Http\Controllers\Controller;
-use App\Http\DTO\PostData;
-use App\Http\Requests\Common\BaseGetRequest;
-use App\Http\Requests\Post\GetPostIdRequest;
-use App\Http\Requests\Post\StorePostRequest;
-use App\Http\Requests\Post\UpdatePostRequest;
+use App\Http\Requests\Post\GetRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Services\PostService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PostController extends Controller
@@ -25,9 +19,13 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(BaseGetRequest $request): ResourceCollection
+    public function index(GetRequest $request): ResourceCollection
     {
-        return $this->service->getActive($request->validated());
+        return PostResource::collection(
+            $this->service->getActive(
+                $request->validated()
+            )
+        );
     }
 }
 

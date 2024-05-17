@@ -3,30 +3,33 @@
 namespace App\Services;
 
 use App\Http\DTO\PackageData;
-use App\Http\Resources\Package\PackageResource;
+use App\Models\Package;
 use App\Models\User;
 use App\Repositories\PackageRepository;
+use App\Repositories\UserRepository;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PackageService
 {
     public function __construct(
-        private PackageRepository $repository
+        private PackageRepository $repository,
+        private UserRepository    $userRepository,
     )
     {
     }
 
-    public function getAll(array $params): AnonymousResourceCollection
+    public function getAll(array $params): LengthAwarePaginator
     {
         $package = $this->repository->getAll($params);
-        return PackageResource::collection($package);
+        return ($package);
     }
 
-    public function create(PackageData $packageData): PackageResource
+    public function create(PackageData $packageData): Model|Package
     {
         $package = $this->repository->create($packageData);
-        return PackageResource::make($package);
+        return ($package);
     }
 
     public function activate(int $id): JsonResponse
@@ -34,19 +37,22 @@ class PackageService
         return $this->repository->activate($id);
     }
 
-    public function getActive(array $params): AnonymousResourceCollection
+    public function getActive(array $params): LengthAwarePaginator
     {
         $package = $this->repository->getActive($params);
-        return PackageResource::collection($package);
+        return ($package);
     }
 
-    public function getByUser(array $params, User $user): AnonymousResourceCollection
+    public function getByUser(array $params, User $user): LengthAwarePaginator
     {
-        return PackageResource::collection($this->repository->getByUser($params, $user));
+        return ($this->repository->getByUser($params, $user));
     }
 
     public function buy(int $id, User $user): JsonResponse
     {
+        if ($this->userRepository->hasPublications($user)) {
+            return response()->json(['message' => 'you have active package']);
+        }
         $package = $this->repository->getById($id);
         return $this->repository->buy($package, $user);
     }
